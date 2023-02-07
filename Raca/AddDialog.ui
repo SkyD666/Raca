@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>594</width>
-    <height>594</height>
+    <height>499</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -185,6 +185,10 @@
         <property name="text">
          <string>删除</string>
         </property>
+        <property name="icon">
+         <iconset resource="resource/Raca.qrc">
+          <normaloff>:/ic_remove.svg</normaloff>:/ic_remove.svg</iconset>
+        </property>
        </widget>
       </item>
      </layout>
@@ -192,6 +196,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="resource/Raca.qrc"/>
+ </resources>
  <connections/>
 </ui>

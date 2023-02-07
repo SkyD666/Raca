@@ -39,6 +39,8 @@
 
 ## 💻支持平台（Qt 6.4.2）
 
+测试平台：Windows 11 22H2
+
 - **仅支持64位**操作系统
 - Windows 10 21H2 (1809 or later)
 - Windows 11 21H2 (1809 or later)

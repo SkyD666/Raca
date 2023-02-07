@@ -84,12 +84,19 @@ void MainWindow::initTray()
 {
     QAction* actionShow = new QAction(QIcon(":/icon.svg"), tr("显示(&S)..."), &systemTrayMenu);
     connect(actionShow, &QAction::triggered, &systemTrayMenu, [=]() { show(); });
+    QAction* actionAdd = new QAction(tr("添加(&A)..."), &systemTrayMenu);
+    connect(actionAdd, &QAction::triggered, &systemTrayMenu, [=]() { ui.actionAdd->trigger(); });
+    QAction* actionSettings = new QAction(tr("选项(&O)..."), &systemTrayMenu);
+    connect(actionSettings, &QAction::triggered, &systemTrayMenu, [=]() { ui.actionSettings->trigger(); });
     QAction* actionExit = new QAction(tr("退出(&X)"), &systemTrayMenu);
     connect(actionExit, &QAction::triggered, &systemTrayMenu, [=]() {
         exiting = true;
         close();
     });
     systemTrayMenu.addAction(actionShow);
+    systemTrayMenu.addSeparator();
+    systemTrayMenu.addAction(actionAdd);
+    systemTrayMenu.addAction(actionSettings);
     systemTrayMenu.addSeparator();
     systemTrayMenu.addAction(actionExit);
 

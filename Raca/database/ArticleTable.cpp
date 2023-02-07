@@ -53,7 +53,7 @@ QVariant ArticleTable::insertData(Article data)
         query.bindValue(":createTime", data.createTime);
     } else {
         query.prepare("UPDATE Article "
-                      "SET title = :title, article = :article, createTime = :createTime"
+                      "SET title = :title, article = :article, createTime = :createTime "
                       "WHERE id = :id");
         query.bindValue(":id", data.id);
         query.bindValue(":title", data.title);
