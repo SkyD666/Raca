@@ -182,6 +182,9 @@
       </item>
       <item>
        <widget class="QToolButton" name="tbDeleteSelectedTag">
+        <property name="toolTip">
+         <string>删除选中标签</string>
+        </property>
         <property name="text">
          <string>删除</string>
         </property>

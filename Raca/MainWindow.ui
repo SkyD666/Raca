@@ -131,6 +131,7 @@
    </attribute>
    <addaction name="actionAdd"/>
    <addaction name="actionEdit"/>
+   <addaction name="actionDeleteSelectedRow"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="dwDetailInfo">
@@ -337,6 +338,10 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset resource="resource/Raca.qrc">
+     <normaloff>:/icon.svg</normaloff>:/icon.svg</iconset>
+   </property>
    <property name="text">
     <string>关于 Raca...</string>
    </property>
@@ -348,6 +353,10 @@
    </property>
   </action>
   <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="resource/Raca.qrc">
+     <normaloff>:/ic_settings.svg</normaloff>:/ic_settings.svg</iconset>
+   </property>
    <property name="text">
     <string>选项(&amp;O)...</string>
    </property>
@@ -359,6 +368,10 @@
    </property>
   </action>
   <action name="actionDeleteSelectedRow">
+   <property name="icon">
+    <iconset resource="resource/Raca.qrc">
+     <normaloff>:/ic_remove.svg</normaloff>:/ic_remove.svg</iconset>
+   </property>
    <property name="text">
     <string>删除选中行(&amp;D)</string>
    </property>

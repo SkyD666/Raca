@@ -3,12 +3,14 @@
 #include "AddDialog.h"
 #include "GlobalData.h"
 #include "SettingsDialog.h"
+#include "database/TableInfo.h"
 #include "model/WrapDelegate.h"
 #include <QAbstractItemModel>
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QtConcurrent>
+#include <model/ReadOnlyDelegate.h>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -34,7 +36,6 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow()
 {
-    GlobalData::writeSettings();
 }
 
 void MainWindow::closeEvent(QCloseEvent* ev)
@@ -84,9 +85,9 @@ void MainWindow::initTray()
 {
     QAction* actionShow = new QAction(QIcon(":/icon.svg"), tr("显示(&S)..."), &systemTrayMenu);
     connect(actionShow, &QAction::triggered, &systemTrayMenu, [=]() { show(); });
-    QAction* actionAdd = new QAction(tr("添加(&A)..."), &systemTrayMenu);
+    QAction* actionAdd = new QAction(ui.actionAdd->icon(), tr("添加(&A)..."), &systemTrayMenu);
     connect(actionAdd, &QAction::triggered, &systemTrayMenu, [=]() { ui.actionAdd->trigger(); });
-    QAction* actionSettings = new QAction(tr("选项(&O)..."), &systemTrayMenu);
+    QAction* actionSettings = new QAction(ui.actionSettings->icon(), tr("选项(&O)..."), &systemTrayMenu);
     connect(actionSettings, &QAction::triggered, &systemTrayMenu, [=]() { ui.actionSettings->trigger(); });
     QAction* actionExit = new QAction(tr("退出(&X)"), &systemTrayMenu);
     connect(actionExit, &QAction::triggered, &systemTrayMenu, [=]() {
@@ -136,6 +137,9 @@ void MainWindow::initMenu()
 
     ui.actionDeleteSelectedRow->setEnabled(false);
     connect(ui.actionDeleteSelectedRow, &QAction::triggered, this, [=]() {
+        if (QMessageBox::No == QMessageBox::question(this, QString(), tr("确定删除选中项？此操作不可逆！"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No)) {
+            return;
+        }
         QFuture<QPair<int, int>> future = QtConcurrent::run([=]() {
             QModelIndexList indexes = ui.tvResult->selectionModel()->selectedIndexes();
             int succeed = 0, failed = 0;
@@ -174,15 +178,33 @@ void MainWindow::initMenu()
 
     QMenu* menuSearchDomain = new QMenu(tr("搜索域"), ui.menuSearch);
     ui.menuSearch->addMenu(menuSearchDomain);
-    for (const QPair<QString, QString>& col : ArticleTable::columnName) {
-        QAction* action = new QAction(col.second, menuSearchDomain);
-        action->setData(QVariant(col.first));
-        action->setCheckable(true);
-        action->setChecked(GlobalData::searchDomain[col.first]);
-        connect(action, &QAction::toggled, menuSearchDomain, [=](bool checked) {
-            GlobalData::searchDomain[action->data().toString()] = checked;
-        });
-        menuSearchDomain->addAction(action);
+    {
+        auto tables = TableInfo::getTableName2DisplayName().keys();
+        for (auto& table : tables) {
+            QMenu* menuTable = new QMenu(TableInfo::getTableName2DisplayName()[table], menuSearchDomain);
+            menuSearchDomain->addMenu(menuTable);
+            auto columns = TableInfo::getColumnName2DisplayName()[table].keys();
+            for (auto& column : columns) {
+                QAction* action = new QAction(TableInfo::getColumnName2DisplayName()[table][column], menuTable);
+                action->setData(QVariant::fromValue(QPair<QString, QString>(table, column)));
+                action->setCheckable(true);
+                if (GlobalData::searchDomain.contains(table)
+                    && GlobalData::searchDomain[table].contains(column)) {
+                    action->setChecked(GlobalData::searchDomain[table][column]);
+                }
+                connect(action, &QAction::toggled, menuTable, [=](bool checked) {
+                    auto tableAndColumn = action->data().value<QPair<QString, QString>>();
+                    QString table = tableAndColumn.first;
+                    QString column = tableAndColumn.second;
+
+                    if (!GlobalData::searchDomain.contains(table)) {
+                        GlobalData::searchDomain[table] = {};
+                    }
+                    GlobalData::searchDomain[table][column] = checked;
+                });
+                menuTable->addAction(action);
+            }
+        }
     }
 
     connect(ui.actionSettings, &QAction::triggered, this, [=]() {
@@ -204,20 +226,7 @@ void MainWindow::initConnect()
     search();
 
     connect(ui.tvResult->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
-        [=](const QModelIndex& current, const QModelIndex& _) {
-            int id = model->data(model->index(current.row(), 0)).toInt();
-            ui.leTitle->setText(model->data(model->index(current.row(), 1)).toString());
-            ui.teArticle->setText(model->data(model->index(current.row(), 2)).toString());
-            ui.leCreateTime->setText(model->data(model->index(current.row(), 3)).toString());
-            ui.lwTag->clear();
-
-            QFuture<QList<Tag>> refreshTagsDisplayFuture = QtConcurrent::run([=]() {
-                QList<Tag> tags;
-                DataBaseManager::getInstance()->getTagTable()->getDataById(tags, id);
-                return tags;
-            });
-            refreshTagsDisplayWatcher.setFuture(refreshTagsDisplayFuture);
-        });
+        [=](const QModelIndex& current, const QModelIndex& _) { refreshDetailInfoDisplay(current); });
 
     connect(&refreshTagsDisplayWatcher, &QFutureWatcher<QList<Tag>>::finished, this, [=]() {
         auto tags = refreshTagsDisplayWatcher.result();
@@ -240,10 +249,13 @@ void MainWindow::initConnect()
 
 void MainWindow::resetTableModel()
 {
-    for (const QPair<QString, QString>& name : ArticleTable::columnName) {
-        model->setHeaderData(model->fieldIndex(name.first), Qt::Horizontal, name.second);
+    for (auto& column : ArticleTable::columnName.keys()) {
+        model->setHeaderData(model->fieldIndex(column), Qt::Horizontal, ArticleTable::columnName[column]);
+        model->setHeaderData(model->fieldIndex(column), Qt::Horizontal, column, ArticleSqlTableModel::HeaderColumnNameRole);
     }
     // ui.tvResult->hideColumn(0);
+
+    ui.tvResult->setItemDelegateForColumn(model->fieldIndex("id"), new ReadOnlyDelegate(ui.tvResult));
 
     ui.tvResult->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.tvResult->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
@@ -258,6 +270,7 @@ void MainWindow::search()
         QSqlError lastError = model->lastError();
         qDebug() << lastError << lastError.driverText();
     }
+    refreshDetailInfoDisplay(ui.tvResult->selectionModel()->currentIndex());
 }
 
 void MainWindow::openAddDialog(int id)
@@ -268,4 +281,26 @@ void MainWindow::openAddDialog(int id)
         search();
     }
     delete dialog;
+}
+
+void MainWindow::refreshDetailInfoDisplay(const QModelIndex& current)
+{
+
+    int id = model->data(model->index(current.row(), 0)).toInt();
+    ui.leTitle->setText(model->data(model->index(current.row(), 1)).toString());
+    ui.teArticle->setText(model->data(model->index(current.row(), 2)).toString());
+    ui.leCreateTime->setText(model->data(model->index(current.row(), 3)).toString());
+
+    refreshTagsDisplay(id);
+}
+
+void MainWindow::refreshTagsDisplay(int id)
+{
+    ui.lwTag->clear();
+    QFuture<QList<Tag>> refreshTagsDisplayFuture = QtConcurrent::run([=]() {
+        QList<Tag> tags;
+        DataBaseManager::getInstance()->getTagTable()->getDataById(tags, id);
+        return tags;
+    });
+    refreshTagsDisplayWatcher.setFuture(refreshTagsDisplayFuture);
 }

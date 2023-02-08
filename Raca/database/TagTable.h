@@ -24,7 +24,9 @@ class TagTable : public BaseTable {
 
 public:
     static const QString name;
-    static const QList<QPair<QString, QString>> columnName;
+    static const QString displayName;
+    static const QMap<QString, QString> columnName;
+    static const QList<QString> defaultSearchColumnName;
 
     TagTable(QSqlDatabase* database);
     ~TagTable();

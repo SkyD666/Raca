@@ -9,12 +9,13 @@ const QString AddedAction::NoAction = "NoAction";
 const QString AddedAction::CloseAddDialog = "CloseAddDialog";
 const QString AddedAction::ClearAddDialog = "ClearAddDialog";
 
-QString GlobalData::quickInputHotkeyStr = "Ctrl+I";
-QHotkey* GlobalData::quickInputHotkey = nullptr;
 bool GlobalData::minimizeToTray = true;
 bool GlobalData::useRegex = false;
-QHash<QString, bool> GlobalData::searchDomain = {};
+QHash<QString, QHash<QString, bool>> GlobalData::searchDomain = {};
 QString GlobalData::addedAction = AddedAction::CloseAddDialog;
+QHash<QString, Hotkey> GlobalData::hotkeys = {
+    { "QuickInput", Hotkey("QuickInput", tr("快速输入"), nullptr, "Ctrl+I") }
+};
 
 GlobalData::GlobalData(QObject* parent)
     : QObject(parent)
@@ -28,11 +29,23 @@ GlobalData::~GlobalData()
 void GlobalData::init()
 {
     license = license.arg(QApplication::applicationDisplayName(), QApplication::applicationVersion());
-    searchDomain = { { ArticleTable::columnName[1].first, true },
-        { ArticleTable::columnName[2].first, true } };
+    searchDomain[ArticleTable::name] = {};
+    for (auto& column : ArticleTable::defaultSearchColumnName) {
+        searchDomain[ArticleTable::name][column] = true;
+    }
+    searchDomain[TagTable::name] = {};
+    for (auto& column : TagTable::defaultSearchColumnName) {
+        searchDomain[TagTable::name][column] = true;
+    }
     readSettings();
-    setHotkeys();
+    registerHotkeys();
     setDarkMode();
+}
+
+void GlobalData::destory()
+{
+    writeSettings();
+    removeHotkeys();
 }
 
 inline QString GlobalData::getSettingsFilePath()
@@ -50,20 +63,36 @@ void GlobalData::readSettings()
     settings.endGroup();
 
     settings.beginGroup("Hotkey");
-    quickInputHotkeyStr = settings.value("QuickInput", "Ctrl+I").toString();
+    for (auto hotkeyName : hotkeys.keys()) {
+        QString configHotkey = settings.value(hotkeyName, "None").toString();
+        if (configHotkey != "None") {
+            hotkeys[hotkeyName].hotkeyStr = configHotkey;
+        } else {
+            hotkeys[hotkeyName].hotkeyStr = hotkeys[hotkeyName].defaultHotkeyStr;
+        }
+    }
     settings.endGroup();
 
     settings.beginGroup("Search");
     useRegex = settings.value("UseRegex", false).toBool();
-    int size = settings.beginReadArray("SearchDomain");
-    for (int i = 0; i < size; i++) {
-        settings.setArrayIndex(i);
-        QString colName = settings.value("ColumnName", "").toString();
-        if (!colName.isEmpty()) {
-            searchDomain[colName] = settings.value("Include", false).toBool();
+    {
+        settings.beginGroup("SearchDomain");
+        auto tables = settings.childGroups();
+        for (auto table : tables) {
+            settings.beginGroup(table);
+            auto columns = settings.childKeys();
+            for (auto column : columns) {
+                if (!table.isEmpty() && !column.isEmpty()) {
+                    if (!searchDomain.contains(table)) {
+                        searchDomain[table] = QHash<QString, bool>();
+                    }
+                    searchDomain[table][column] = settings.value(column, false).toBool();
+                }
+            }
+            settings.endGroup();
         }
+        settings.endGroup();
     }
-    settings.endArray();
     settings.endGroup();
 }
 
@@ -77,22 +106,26 @@ void GlobalData::writeSettings()
     settings.endGroup();
 
     settings.beginGroup("Hotkey");
-    settings.setValue("QuickInput", quickInputHotkeyStr);
+    for (auto hotkeyName : hotkeys.keys()) {
+        settings.setValue(hotkeyName, hotkeys[hotkeyName].hotkeyStr);
+    }
     settings.endGroup();
 
     settings.beginGroup("Search");
     settings.setValue("UseRegex", useRegex);
-    settings.beginWriteArray("SearchDomain");
     {
-        QList<QString> keys = searchDomain.keys();
-        int i = 0;
-        for (QString key : keys) {
-            settings.setArrayIndex(i++);
-            settings.setValue("ColumnName", key);
-            settings.setValue("Include", searchDomain[key]);
+        settings.beginGroup("SearchDomain");
+        QList<QString> tables = searchDomain.keys();
+        for (QString table : tables) {
+            settings.beginGroup(table);
+            QList<QString> columns = searchDomain[table].keys();
+            for (QString column : columns) {
+                settings.setValue(column, searchDomain[table][column]);
+            }
+            settings.endGroup();
         }
+        settings.endGroup();
     }
-    settings.endArray();
     settings.endGroup();
 }
 
@@ -131,17 +164,38 @@ bool GlobalData::startWithOS()
 #endif
 }
 
-void GlobalData::setHotkeys()
+void GlobalData::registerHotkeys()
 {
-    if (!quickInputHotkey) {
-        quickInputHotkey = new QHotkey(QKeySequence(GlobalData::quickInputHotkeyStr), true, qApp);
+    auto keys = hotkeys.keys();
+    for (auto hotkeyName : keys) {
+        QHotkey* hotkey = hotkeys[hotkeyName].hotkeyPtr;
+        if (!hotkey) {
+            hotkey = new QHotkey(QKeySequence(hotkeys[hotkeyName].hotkeyStr), true, qApp);
+            hotkeys[hotkeyName].hotkeyPtr = hotkey;
+        }
+
+        if (hotkey->isRegistered()) {
+            if (hotkeyName == "QuickInput") {
+                connect(hotkey, &QHotkey::activated, qApp, [=]() {
+                    QuickInputDialog* dialog = new QuickInputDialog;
+                    dialog->show();
+                    dialog->activateWindow();
+                });
+            }
+        }
     }
-    if (quickInputHotkey->isRegistered()) {
-        QObject::connect(quickInputHotkey, &QHotkey::activated, qApp, [&]() {
-            QuickInputDialog* dialog = new QuickInputDialog;
-            dialog->show();
-            dialog->activateWindow();
-        });
+}
+
+void GlobalData::removeHotkeys()
+{
+    auto keys = hotkeys.keys();
+    for (auto key : keys) {
+        if (hotkeys[key].hotkeyPtr) {
+            hotkeys[key].hotkeyPtr->setRegistered(false);
+            hotkeys[key].hotkeyPtr->disconnect();
+            delete hotkeys[key].hotkeyPtr;
+            hotkeys[key].hotkeyPtr = nullptr;
+        }
     }
 }
 

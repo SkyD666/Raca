@@ -3,10 +3,15 @@
 <svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 200 200" style="enable-background:new 0 0 200 200;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#C1272D;}
+	.st0{fill:#1296DB;}
+	.st1{fill:#FFFFFF;stroke:#FFFFFF;stroke-width:6;stroke-miterlimit:10;}
+	.st2{font-family:'SimHei';}
+	.st3{font-size:111.2611px;}
+	.st4{fill:#FFFFFF;}
 </style>
 <g>
-	<path class="st0" d="M163,116.5H38c-8.84,0-16-7.16-16-16v0c0-8.84,7.16-16,16-16h125c8.84,0,16,7.16,16,16v0
-		C179,109.34,171.84,116.5,163,116.5z"/>
+	<rect x="32" y="32" class="st0" width="135" height="135"/>
 </g>
+<text transform="matrix(1 0 0 1 50.9766 132.6152)" class="st1 st2 st3">F</text>
+<rect x="79" y="141" class="st4" width="41" height="14"/>
 </svg>

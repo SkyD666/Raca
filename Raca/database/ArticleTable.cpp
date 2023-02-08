@@ -1,16 +1,21 @@
 ﻿#include "ArticleTable.h"
 #include "GlobalData.h"
+#include "database/SqlUtil.h"
+#include "database/TableInfo.h"
 #include <QRandomGenerator>
 #include <QSqlRecord>
 #include <QVariant>
 
 const QString ArticleTable::name = "Article";
-const QList<QPair<QString, QString>> ArticleTable::columnName = {
-    qMakePair("id", QObject::tr("ID")),
-    qMakePair("title", QObject::tr("标题")),
-    qMakePair("article", QObject::tr("内容")),
-    qMakePair("createTime", QObject::tr("创建时间"))
+const QString ArticleTable::displayName = QObject::tr("段落");
+const QMap<QString, QString> ArticleTable::columnName = {
+    { "id", QObject::tr("ID") },
+    { "title", QObject::tr("标题") },
+    { "article", QObject::tr("内容") },
+    { "createTime", QObject::tr("创建时间") }
 };
+const QList<QString> ArticleTable::timestampColumnName = { "createTime" };
+const QList<QString> ArticleTable::defaultSearchColumnName = { "title", "article" };
 
 ArticleTable::ArticleTable(QSqlDatabase* database, TagTable* tagTable)
     : BaseTable(database)
@@ -26,14 +31,52 @@ ArticleTable::~ArticleTable()
 QString ArticleTable::getFilter(QString keyword)
 {
     QString filter = "FALSE";
-    for (QPair<QString, QString> col : columnName) {
-        if (GlobalData::searchDomain.contains(col.first) && GlobalData::searchDomain[col.first]) {
-            if (GlobalData::useRegex) {
-                filter += " OR " + col.first + " REGEXP '" + keyword + "'";
-            } else {
-                filter += " OR " + col.first + " LIKE '%" + keyword + "%'";
+
+    // 转义输入，防止SQL注入
+    if (GlobalData::useRegex) {
+        keyword = SqlUtil::escapeField(keyword, database);
+    } else {
+        keyword = SqlUtil::escapeField("%" + keyword + "%", database);
+    }
+
+    auto tables = GlobalData::searchDomain.keys();
+    for (auto& table : tables) {
+        auto columns = GlobalData::searchDomain[table].keys();
+
+        if (table == ArticleTable::name) {
+            for (auto& column : columns) {
+                if (columnName.contains(column)) {
+                    if (!GlobalData::searchDomain[table][column]) {
+                        continue;
+                    }
+                    if (GlobalData::useRegex) {
+                        filter += " OR " + column + " REGEXP " + keyword;
+                    } else {
+                        filter += " OR " + column + " LIKE " + keyword;
+                    }
+                }
             }
+        } else {
+            QString subSelect = QString("(SELECT DISTINCT id FROM %1 WHERE FALSE ").arg(table);
+            for (auto& column : columns) {
+                if (TableInfo::getColumnName2DisplayName()[table].contains(column)) {
+                    if (!GlobalData::searchDomain[table][column]) {
+                        continue;
+                    }
+                    if (GlobalData::useRegex) {
+                        subSelect += " OR " + column + " REGEXP " + keyword;
+                    } else {
+                        subSelect += " OR " + column + " LIKE " + keyword;
+                    }
+                }
+            }
+            subSelect += ")";
+            filter += " OR id IN " + subSelect;
         }
+    }
+
+    if (filter == "FALSE") {
+        filter += " OR TRUE";
     }
     return filter;
 }

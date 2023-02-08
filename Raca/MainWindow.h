@@ -40,4 +40,6 @@ private:
     void resetTableModel();
     void search();
     void openAddDialog(int id = INT_MIN);
+    void refreshDetailInfoDisplay(const QModelIndex& current);
+    void refreshTagsDisplay(int id);
 };

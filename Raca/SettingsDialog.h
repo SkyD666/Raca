@@ -11,6 +11,7 @@ public:
     ~SettingsDialog();
 
     const static QString pageName[];
+    const static QString pageIcon[];
 
 private:
     Ui::SettingsDialog ui;

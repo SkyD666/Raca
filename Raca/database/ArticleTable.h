@@ -32,7 +32,10 @@ class ArticleTable : public BaseTable {
 
 public:
     static const QString name;
-    static const QList<QPair<QString, QString>> columnName;
+    static const QString displayName;
+    static const QMap<QString, QString> columnName;
+    static const QList<QString> timestampColumnName;
+    static const QList<QString> defaultSearchColumnName;
 
     ArticleTable(QSqlDatabase* database, TagTable* tagTable);
     ~ArticleTable();

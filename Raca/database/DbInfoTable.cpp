@@ -45,7 +45,7 @@ bool DbInfoTable::exists()
     }
     QSqlQuery query(*database);
 
-    query.prepare("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name = 'DbInfo'");
+    query.prepare("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'DbInfo'");
 
     if (query.exec() && query.next()) {
         return query.value(0).toInt();

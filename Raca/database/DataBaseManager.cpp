@@ -44,8 +44,9 @@ bool DataBaseManager::isTableExist(QString table)
         return bRet;
     }
     QSqlQuery query(dataBase);
-    query.exec(QString("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%1'").arg(table));
-    if (query.next()) {
+    query.prepare("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=:tableName");
+    query.bindValue(":tableName", table);
+    if (query.exec() && query.next()) {
         if (query.value(0).toInt() > 0) {
             bRet = true;
         }

@@ -2,16 +2,11 @@
 #include "database/ArticleTable.h"
 #include <QDateTime>
 
+int ArticleSqlTableModel::HeaderColumnNameRole = Qt::UserRole + 2;
+
 ArticleSqlTableModel::ArticleSqlTableModel(QObject* parent, const QSqlDatabase& db)
     : QSqlTableModel(parent, db)
-    , createTimColIndex(-1)
 {
-    for (int i = 0; i < ArticleTable::columnName.count(); i++) {
-        if (ArticleTable::columnName[i].first == "createTime") {
-            createTimColIndex = i;
-            break;
-        }
-    }
 }
 
 ArticleSqlTableModel::~ArticleSqlTableModel()
@@ -20,7 +15,8 @@ ArticleSqlTableModel::~ArticleSqlTableModel()
 
 Qt::ItemFlags ArticleSqlTableModel::flags(const QModelIndex& index) const
 {
-    if (index.column() == createTimColIndex) {
+    if (ArticleTable::timestampColumnName
+            .contains(QSqlTableModel::headerData(index.column(), Qt::Horizontal, HeaderColumnNameRole))) {
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
     } else {
         return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
@@ -31,7 +27,9 @@ QVariant ArticleSqlTableModel::data(const QModelIndex& index, int role) const
 {
     QVariant value = QSqlTableModel::data(index, role);
 
-    if (role == Qt::DisplayRole && index.column() == createTimColIndex) {
+    if (role == Qt::DisplayRole
+        && ArticleTable::timestampColumnName
+               .contains(QSqlTableModel::headerData(index.column(), Qt::Horizontal, HeaderColumnNameRole))) {
         auto datetime = QDateTime::fromMSecsSinceEpoch(value.toLongLong());
         return QVariant(datetime.toString("yyyy-MM-dd hh:mm:ss"));
     }

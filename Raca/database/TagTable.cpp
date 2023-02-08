@@ -4,11 +4,13 @@
 #include <QSqlRecord>
 
 const QString TagTable::name = "Tag";
-const QList<QPair<QString, QString>> TagTable::columnName = {
-    qMakePair("id", QObject::tr("ID")),
-    qMakePair("tag", QObject::tr("标签")),
-    qMakePair("createTime", QObject::tr("创建时间"))
+const QString TagTable::displayName = QObject::tr("标签");
+const QMap<QString, QString> TagTable::columnName = {
+    { "id", QObject::tr("ID") },
+    { "tag", QObject::tr("标签") },
+    { "createTime", QObject::tr("创建时间") }
 };
+const QList<QString> TagTable::defaultSearchColumnName = { "tag" };
 
 TagTable::TagTable(QSqlDatabase* database)
     : BaseTable(database)

@@ -4,5 +4,8 @@
         <file>ic_remove.svg</file>
         <file>ic_add.svg</file>
         <file>ic_edit.svg</file>
+        <file>ic_settings.svg</file>
+        <file>ic_search.svg</file>
+        <file>ic_key_f.svg</file>
     </qresource>
 </RCC>

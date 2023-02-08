@@ -93,7 +93,9 @@ void AddDialog::initConnect()
                     tags << ui.lwTag->item(i)->text();
                 }
                 QList list = tags.values();
-                DataBaseManager::getInstance()->getTagTable()->insertData(rtn.toInt(), list);
+                auto tagTable = DataBaseManager::getInstance()->getTagTable();
+                tagTable->removeData(rtn.toInt());
+                tagTable->insertData(rtn.toInt(), list);
             }
             return rtn;
         });
