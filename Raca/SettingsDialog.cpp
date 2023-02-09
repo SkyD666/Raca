@@ -4,7 +4,7 @@
 #include <model/HotkeyDelegate.h>
 #include <model/ReadOnlyDelegate.h>
 
-const QString SettingsDialog::pageName[] = { tr("常规"), tr("搜索"), tr("热键") };
+const QString SettingsDialog::pageName[] = { tr("常规"), tr("搜索"), tr("全局热键") };
 const QString SettingsDialog::pageIcon[] = { ":/ic_settings.svg", ":/ic_search.svg", ":/ic_key_f.svg" };
 
 SettingsDialog::SettingsDialog(QWidget* parent)
@@ -62,7 +62,7 @@ void SettingsDialog::initConnect()
         GlobalData::useRegex = state;
     });
 
-    ui.twHotkey->setHorizontalHeaderLabels(QStringList() << tr("功能") << tr("热键"));
+    ui.twHotkey->setHorizontalHeaderLabels(QStringList() << tr("功能") << tr("全局热键"));
     ui.twHotkey->setItemDelegateForColumn(0, new ReadOnlyDelegate(ui.twHotkey));
     ui.twHotkey->setItemDelegateForColumn(1, new HotkeyDelegate(ui.twHotkey));
     int row = ui.twHotkey->rowCount();

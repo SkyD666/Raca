@@ -8,7 +8,7 @@ public:
     explicit QuickInputAction(QAction* action = nullptr, QObject* parent = nullptr);
 
     bool callback() override;
-    QString name() override;
-    QString displayName() override;
-    QString defaultHotkeyStr() override;
+    QString name() const override;
+    QString displayName() const override;
+    QString defaultHotkeyStr() const override;
 };

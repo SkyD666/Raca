@@ -11,17 +11,17 @@ bool AddArticleAction::callback()
     return mCallback();
 }
 
-QString AddArticleAction::name()
+QString AddArticleAction::name() const
 {
     return "AddArticle";
 }
 
-QString AddArticleAction::displayName()
+QString AddArticleAction::displayName() const
 {
     return tr("添加小作文");
 }
 
-QString AddArticleAction::defaultHotkeyStr()
+QString AddArticleAction::defaultHotkeyStr() const
 {
     return "Ctrl+Shift+=";
 }

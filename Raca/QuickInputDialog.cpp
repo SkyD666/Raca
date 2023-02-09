@@ -26,7 +26,7 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
 
     connect(ui.tableWidget, &QuickInputTableWidget::returnPressed, this, [=]() {
         int row = ui.tableWidget->currentRow();
-        if (row < list.count()) {
+        if (row < list.count() && row >= 0) {
             QGuiApplication::clipboard()->setText(list[row].article);
             close();
         }
@@ -36,11 +36,11 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
         if (watcher.result()) {
             QTableWidgetItem* titleItem = nullptr;
             QTableWidgetItem* articleItem = nullptr;
-            int row = ui.tableWidget->rowCount();
+            ui.tableWidget->setRowCount(0);
             if (list.count()) {
-                ui.tableWidget->clear();
                 ui.tableWidget->setFocus();
             }
+            int row = ui.tableWidget->rowCount();
             for (Article& a : list) {
                 ui.tableWidget->insertRow(row);
                 titleItem = new QTableWidgetItem(a.title);

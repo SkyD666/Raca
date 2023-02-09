@@ -1,6 +1,7 @@
 #include "GlobalData.h"
 #include "database/ArticleTable.h"
 #include <QApplication>
+#include <QMessageBox>
 #include <QSettings>
 #include <QStyleFactory>
 
@@ -189,6 +190,10 @@ void GlobalData::registerHotkeys()
             connect(hotkey, &QHotkey::activated, qApp, [=]() {
                 i.value()->callback();
             });
+        } else {
+            QMessageBox::critical(nullptr, QString(),
+                tr("热键 %1 注册失败，\"%2\"功能无法通过热键唤起！")
+                    .arg(i.value()->hotkeyStr(), i.value()->displayName()));
         }
     }
 }

@@ -11,9 +11,9 @@ public:
 
     virtual bool callback() = 0;
 
-    virtual QString name() = 0;
-    virtual QString displayName() = 0;
-    virtual QString defaultHotkeyStr() = 0;
+    virtual QString name() const = 0;
+    virtual QString displayName() const = 0;
+    virtual QString defaultHotkeyStr() const = 0;
 
     virtual void setHotkeyPtr(QHotkey* hotkeyPtr);
     virtual QHotkey* hotkeyPtr();

@@ -15,17 +15,17 @@ bool QuickInputAction::callback()
     return true;
 }
 
-QString QuickInputAction::name()
+QString QuickInputAction::name() const
 {
     return "QuickInput";
 }
 
-QString QuickInputAction::displayName()
+QString QuickInputAction::displayName() const
 {
     return tr("快速输入");
 }
 
-QString QuickInputAction::defaultHotkeyStr()
+QString QuickInputAction::defaultHotkeyStr() const
 {
     return "Ctrl+I";
 }
