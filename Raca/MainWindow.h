@@ -37,6 +37,7 @@ private:
     void initTray();
     void initMenu();
     void initConnect();
+    void initHotkeys();
     void resetTableModel();
     void search();
     void openAddDialog(int id = INT_MIN);

@@ -39,9 +39,9 @@ QString ArticleTable::getFilter(QString keyword)
         keyword = SqlUtil::escapeField("%" + keyword + "%", database);
     }
 
-    auto tables = GlobalData::searchDomain.keys();
+    const auto tables = GlobalData::searchDomain.keys();
     for (auto& table : tables) {
-        auto columns = GlobalData::searchDomain[table].keys();
+        const auto columns = GlobalData::searchDomain[table].keys();
 
         if (table == ArticleTable::name) {
             for (auto& column : columns) {

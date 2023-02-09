@@ -1,5 +1,4 @@
 #include "GlobalData.h"
-#include "QuickInputDialog.h"
 #include "database/ArticleTable.h"
 #include <QApplication>
 #include <QSettings>
@@ -13,9 +12,8 @@ bool GlobalData::minimizeToTray = true;
 bool GlobalData::useRegex = false;
 QHash<QString, QHash<QString, bool>> GlobalData::searchDomain = {};
 QString GlobalData::addedAction = AddedAction::CloseAddDialog;
-QHash<QString, Hotkey> GlobalData::hotkeys = {
-    { "QuickInput", Hotkey("QuickInput", tr("快速输入"), nullptr, "Ctrl+I") }
-};
+bool GlobalData::hotkeysInited = false;
+QMap<QString, HotkeyAction*> GlobalData::hotkeys = {};
 
 GlobalData::GlobalData(QObject* parent)
     : QObject(parent)
@@ -38,7 +36,6 @@ void GlobalData::init()
         searchDomain[TagTable::name][column] = true;
     }
     readSettings();
-    registerHotkeys();
     setDarkMode();
 }
 
@@ -62,26 +59,15 @@ void GlobalData::readSettings()
     addedAction = settings.value("AddedAction", AddedAction::CloseAddDialog).toString();
     settings.endGroup();
 
-    settings.beginGroup("Hotkey");
-    for (auto hotkeyName : hotkeys.keys()) {
-        QString configHotkey = settings.value(hotkeyName, "None").toString();
-        if (configHotkey != "None") {
-            hotkeys[hotkeyName].hotkeyStr = configHotkey;
-        } else {
-            hotkeys[hotkeyName].hotkeyStr = hotkeys[hotkeyName].defaultHotkeyStr;
-        }
-    }
-    settings.endGroup();
-
     settings.beginGroup("Search");
     useRegex = settings.value("UseRegex", false).toBool();
     {
         settings.beginGroup("SearchDomain");
         auto tables = settings.childGroups();
-        for (auto table : tables) {
+        for (auto& table : tables) {
             settings.beginGroup(table);
             auto columns = settings.childKeys();
-            for (auto column : columns) {
+            for (auto& column : columns) {
                 if (!table.isEmpty() && !column.isEmpty()) {
                     if (!searchDomain.contains(table)) {
                         searchDomain[table] = QHash<QString, bool>();
@@ -106,8 +92,8 @@ void GlobalData::writeSettings()
     settings.endGroup();
 
     settings.beginGroup("Hotkey");
-    for (auto hotkeyName : hotkeys.keys()) {
-        settings.setValue(hotkeyName, hotkeys[hotkeyName].hotkeyStr);
+    for (auto i = hotkeys.constBegin(); i != hotkeys.constEnd(); i++) {
+        settings.setValue(i.key(), i.value()->hotkeyStr());
     }
     settings.endGroup();
 
@@ -115,12 +101,10 @@ void GlobalData::writeSettings()
     settings.setValue("UseRegex", useRegex);
     {
         settings.beginGroup("SearchDomain");
-        QList<QString> tables = searchDomain.keys();
-        for (QString table : tables) {
-            settings.beginGroup(table);
-            QList<QString> columns = searchDomain[table].keys();
-            for (QString column : columns) {
-                settings.setValue(column, searchDomain[table][column]);
+        for (auto i = searchDomain.constBegin(); i != searchDomain.constEnd(); i++) {
+            settings.beginGroup(i.key());
+            for (auto j = i.value().constBegin(); j != i.value().constEnd(); j++) {
+                settings.setValue(j.key(), j.value());
             }
             settings.endGroup();
         }
@@ -164,37 +148,59 @@ bool GlobalData::startWithOS()
 #endif
 }
 
+void GlobalData::initHotkeys(QList<HotkeyAction*> actions)
+{
+    if (hotkeysInited)
+        return;
+    hotkeysInited = true;
+
+    for (auto action : actions) {
+        if (hotkeys.contains(action->name())) {
+            delete hotkeys[action->name()];
+        }
+        hotkeys[action->name()] = action;
+    }
+
+    QSettings settings(getSettingsFilePath(), QSettings::IniFormat);
+    settings.beginGroup("Hotkey");
+    for (auto i = hotkeys.constBegin(); i != hotkeys.constEnd(); i++) {
+        QString configHotkey = settings.value(i.key(), "None").toString();
+        if (configHotkey != "None") {
+            i.value()->setHotkeyStr(configHotkey);
+        } else {
+            i.value()->setHotkeyStr(i.value()->defaultHotkeyStr());
+        }
+    }
+    settings.endGroup();
+
+    registerHotkeys();
+}
+
 void GlobalData::registerHotkeys()
 {
-    auto keys = hotkeys.keys();
-    for (auto hotkeyName : keys) {
-        QHotkey* hotkey = hotkeys[hotkeyName].hotkeyPtr;
+    for (auto i = hotkeys.constBegin(); i != hotkeys.constEnd(); i++) {
+        QHotkey* hotkey = i.value()->hotkeyPtr();
         if (!hotkey) {
-            hotkey = new QHotkey(QKeySequence(hotkeys[hotkeyName].hotkeyStr), true, qApp);
-            hotkeys[hotkeyName].hotkeyPtr = hotkey;
+            hotkey = new QHotkey(QKeySequence(i.value()->hotkeyStr()), true, qApp);
+            i.value()->setHotkeyPtr(hotkey);
         }
 
         if (hotkey->isRegistered()) {
-            if (hotkeyName == "QuickInput") {
-                connect(hotkey, &QHotkey::activated, qApp, [=]() {
-                    QuickInputDialog* dialog = new QuickInputDialog;
-                    dialog->show();
-                    dialog->activateWindow();
-                });
-            }
+            connect(hotkey, &QHotkey::activated, qApp, [=]() {
+                i.value()->callback();
+            });
         }
     }
 }
 
 void GlobalData::removeHotkeys()
 {
-    auto keys = hotkeys.keys();
-    for (auto key : keys) {
-        if (hotkeys[key].hotkeyPtr) {
-            hotkeys[key].hotkeyPtr->setRegistered(false);
-            hotkeys[key].hotkeyPtr->disconnect();
-            delete hotkeys[key].hotkeyPtr;
-            hotkeys[key].hotkeyPtr = nullptr;
+    for (auto i = hotkeys.constBegin(); i != hotkeys.constEnd(); i++) {
+        if (i.value()->hotkeyPtr()) {
+            i.value()->hotkeyPtr()->setRegistered(false);
+            i.value()->hotkeyPtr()->disconnect();
+            delete i.value()->hotkeyPtr();
+            i.value()->setHotkeyPtr(nullptr);
         }
     }
 }

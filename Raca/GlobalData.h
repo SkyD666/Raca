@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../QHotkey/qhotkey.h"
 #include <QHash>
 #include <QObject>
+#include <action/HotkeyAction.h>
 
 struct Hotkey;
 class AddedAction;
@@ -35,32 +35,18 @@ public:
 
     static QHash<QString, QHash<QString, bool>> searchDomain;
 
-    static QHash<QString, Hotkey> hotkeys;
+    static QMap<QString, HotkeyAction*> hotkeys;
 
     static QString license;
 
+    static void initHotkeys(QList<HotkeyAction*> actions);
     static void registerHotkeys();
     static void removeHotkeys();
 
     static void setDarkMode();
-};
 
-struct Hotkey {
-    Hotkey() {};
-    Hotkey(QString name, QString displayName, QHotkey* hotkeyPtr,
-        QString defaultHotkeyStr = "", QString hotkeyStr = "")
-    {
-        this->name = name;
-        this->displayName = displayName;
-        this->hotkeyStr = hotkeyStr;
-        this->hotkeyPtr = hotkeyPtr;
-        this->defaultHotkeyStr = defaultHotkeyStr;
-    }
-    QString name;
-    QString displayName;
-    QString hotkeyStr;
-    QString defaultHotkeyStr;
-    QHotkey* hotkeyPtr;
+private:
+    static bool hotkeysInited;
 };
 
 class AddedAction {

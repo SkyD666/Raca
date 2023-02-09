@@ -3,6 +3,8 @@
 #include "AddDialog.h"
 #include "GlobalData.h"
 #include "SettingsDialog.h"
+#include "action/AddArticleAction.h"
+#include "action/QuickInputAction.h"
 #include "database/TableInfo.h"
 #include "model/WrapDelegate.h"
 #include <QAbstractItemModel>
@@ -20,6 +22,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui.setupUi(this);
 
     initTray();
+    initHotkeys();
 
     model = new ArticleSqlTableModel(this, dataBaseManager->getDataBase());
     model->setTable(ArticleTable::name);
@@ -32,6 +35,8 @@ MainWindow::MainWindow(QWidget* parent)
 
     initMenu();
     initConnect();
+
+    search();
 }
 
 MainWindow::~MainWindow()
@@ -185,7 +190,7 @@ void MainWindow::initMenu()
             menuSearchDomain->addMenu(menuTable);
             auto columns = TableInfo::getColumnName2DisplayName()[table].keys();
             for (auto& column : columns) {
-                QAction* action = new QAction(TableInfo::getColumnName2DisplayName()[table][column], menuTable);
+                QAction* action = new QAction(TableInfo::getColumnName2DisplayName()[table].value(column), menuTable);
                 action->setData(QVariant::fromValue(QPair<QString, QString>(table, column)));
                 action->setCheckable(true);
                 if (GlobalData::searchDomain.contains(table)
@@ -223,7 +228,6 @@ void MainWindow::initMenu()
 void MainWindow::initConnect()
 {
     connect(ui.leSearch, &QLineEdit::returnPressed, this, &MainWindow::search);
-    search();
 
     connect(ui.tvResult->selectionModel(), &QItemSelectionModel::currentRowChanged, this,
         [=](const QModelIndex& current, const QModelIndex& _) { refreshDetailInfoDisplay(current); });
@@ -247,12 +251,24 @@ void MainWindow::initConnect()
     });
 }
 
+void MainWindow::initHotkeys()
+{
+    GlobalData::initHotkeys(QList<HotkeyAction*>()
+        << new QuickInputAction()
+        << new AddArticleAction([=]() {
+               openAddDialog();
+               return true;
+           },
+               ui.actionAdd));
+}
+
 void MainWindow::resetTableModel()
 {
-    for (auto& column : ArticleTable::columnName.keys()) {
-        model->setHeaderData(model->fieldIndex(column), Qt::Horizontal, ArticleTable::columnName[column]);
-        model->setHeaderData(model->fieldIndex(column), Qt::Horizontal, column, ArticleSqlTableModel::HeaderColumnNameRole);
+    for (auto i = ArticleTable::columnName.constBegin(); i != ArticleTable::columnName.constEnd(); i++) {
+        model->setHeaderData(model->fieldIndex(i.key()), Qt::Horizontal, i.value());
+        model->setHeaderData(model->fieldIndex(i.key()), Qt::Horizontal, i.key(), ArticleSqlTableModel::HeaderColumnNameRole);
     }
+
     // ui.tvResult->hideColumn(0);
 
     ui.tvResult->setItemDelegateForColumn(model->fieldIndex("id"), new ReadOnlyDelegate(ui.tvResult));

@@ -28,7 +28,7 @@ void SettingsDialog::initConnect()
 {
     {
         int i = 0;
-        for (QString name : pageName) {
+        for (auto name : pageName) {
             QListWidgetItem* item = new QListWidgetItem(name, ui.lwPage);
             item->setIcon(QIcon(pageIcon[i]));
             ui.lwPage->addItem(item);
@@ -70,17 +70,17 @@ void SettingsDialog::initConnect()
     QTableWidgetItem* hotkeyStrItem = nullptr;
     for (auto& hotkey : GlobalData::hotkeys) {
         ui.twHotkey->insertRow(row);
-        displayNameItem = new QTableWidgetItem(hotkey.displayName);
-        displayNameItem->setToolTip(hotkey.displayName);
+        displayNameItem = new QTableWidgetItem(hotkey->displayName());
+        displayNameItem->setToolTip(hotkey->displayName());
         ui.twHotkey->setItem(row, 0, displayNameItem);
-        hotkeyStrItem = new QTableWidgetItem(hotkey.hotkeyStr, QTableWidgetItem::UserType + 1);
-        hotkeyStrItem->setData(Qt::UserRole + 1, hotkey.name);
+        hotkeyStrItem = new QTableWidgetItem(hotkey->hotkeyStr(), QTableWidgetItem::UserType + 1);
+        hotkeyStrItem->setData(Qt::UserRole + 1, hotkey->name());
         ui.twHotkey->setItem(row, 1, hotkeyStrItem);
         row = ui.twHotkey->rowCount();
     }
     connect(ui.twHotkey, &QTableWidget::itemChanged, this, [=](QTableWidgetItem* item) {
         if (item->type() == QTableWidgetItem::UserType + 1) {
-            GlobalData::hotkeys[item->data(Qt::UserRole + 1).toString()].hotkeyStr = item->text();
+            GlobalData::hotkeys[item->data(Qt::UserRole + 1).toString()]->setHotkeyStr(item->text());
         }
     });
 }

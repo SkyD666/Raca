@@ -13,9 +13,9 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
 
     setAttribute(Qt::WA_DeleteOnClose);
 
-    QPoint p = Util::getEditCursorPos() + QPoint(0, 30);
+    QPoint p = Util::getEditCursorPos();
     if (!p.isNull()) {
-        move(p);
+        move(p + QPoint(0, 30));
     }
 
     ui.tableWidget->horizontalHeader()->setVisible(false);
