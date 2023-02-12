@@ -3,8 +3,6 @@
 HotkeyAction::HotkeyAction(QAction* action, QObject* parent)
     : QObject { parent }
     , action(action)
-    , mHotkeyPtr(nullptr)
-    , mHotkeyStr()
 {
     if (action) {
         connect(action, &QObject::destroyed, this, [=]() {
@@ -18,7 +16,7 @@ void HotkeyAction::setHotkeyPtr(QHotkey* hotkeyPtr)
     this->mHotkeyPtr = hotkeyPtr;
 }
 
-QHotkey* HotkeyAction::hotkeyPtr()
+QHotkey* HotkeyAction::hotkeyPtr() const
 {
     return mHotkeyPtr;
 }
@@ -31,7 +29,7 @@ void HotkeyAction::setHotkeyStr(QString hotkey)
     }
 }
 
-QString HotkeyAction::hotkeyStr()
+QString HotkeyAction::hotkeyStr() const
 {
     return mHotkeyStr;
 }

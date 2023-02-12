@@ -31,8 +31,8 @@ struct Article {
 class ArticleTable : public BaseTable {
 
 public:
-    static const QString name;
-    static const QString displayName;
+    static inline const QString name = "Article";
+    static inline const QString displayName = QObject::tr("段落");
     static const QMap<QString, QString> columnName;
     static const QList<QString> timestampColumnName;
     static const QList<QString> defaultSearchColumnName;

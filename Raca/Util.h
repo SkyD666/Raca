@@ -2,6 +2,7 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QRegion>
 #include <QVariant>
 
 class Util : public QObject {
@@ -10,6 +11,8 @@ class Util : public QObject {
 public:
     Util(QObject* parent);
     ~Util();
+
+    static QRegion roundedRect(const QRect& rect, int r);
 
     static QString escapedCSV(QString unexc);
 

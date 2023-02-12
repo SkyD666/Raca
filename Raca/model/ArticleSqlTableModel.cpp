@@ -2,8 +2,6 @@
 #include "database/ArticleTable.h"
 #include <QDateTime>
 
-int ArticleSqlTableModel::HeaderColumnNameRole = Qt::UserRole + 2;
-
 ArticleSqlTableModel::ArticleSqlTableModel(QObject* parent, const QSqlDatabase& db)
     : QSqlTableModel(parent, db)
 {

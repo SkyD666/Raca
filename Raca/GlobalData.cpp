@@ -5,10 +5,6 @@
 #include <QSettings>
 #include <QStyleFactory>
 
-const QString AddedAction::NoAction = "NoAction";
-const QString AddedAction::CloseAddDialog = "CloseAddDialog";
-const QString AddedAction::ClearAddDialog = "ClearAddDialog";
-
 bool GlobalData::minimizeToTray = true;
 bool GlobalData::useRegex = false;
 QHash<QString, QHash<QString, bool>> GlobalData::searchDomain = {};

@@ -54,12 +54,12 @@ bool DataBaseManager::isTableExist(QString table)
     return bRet;
 }
 
-ArticleTable* DataBaseManager::getArticleTable()
+ArticleTable* DataBaseManager::getArticleTable() const
 {
     return articleTable;
 }
 
-TagTable* DataBaseManager::getTagTable()
+TagTable* DataBaseManager::getTagTable() const
 {
     return tagTable;
 }

@@ -6,8 +6,6 @@
 #include <QSqlRecord>
 #include <QVariant>
 
-const QString ArticleTable::name = "Article";
-const QString ArticleTable::displayName = QObject::tr("段落");
 const QMap<QString, QString> ArticleTable::columnName = {
     { "id", QObject::tr("ID") },
     { "title", QObject::tr("标题") },

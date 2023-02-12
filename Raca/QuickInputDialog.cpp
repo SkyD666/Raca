@@ -3,7 +3,12 @@
 #include "Util.h"
 #include "database/DataBaseManager.h"
 #include <QClipboard>
+#include <QGraphicsDropShadowEffect>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPalette>
+#include <QToolTip>
 #include <QtConcurrent>
 
 QuickInputDialog::QuickInputDialog(QWidget* parent)
@@ -11,7 +16,17 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
 {
     ui.setupUi(this);
 
+    ui.widgetRounded->setStyleSheet(QString("#widgetRounded { background-color: %1; border-radius: 16px }")
+                                        .arg(palette().color(QDialog::backgroundRole()).name()));
+    ui.widgetRounded->setBackgroundRole(QDialog::backgroundRole());
+    auto* effect = new QGraphicsDropShadowEffect(ui.widgetRounded);
+    effect->setBlurRadius(10);
+    effect->setOffset(0);
+    ui.widgetRounded->setGraphicsEffect(effect);
+
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground);
 
     QPoint p = Util::getEditCursorPos();
     if (!p.isNull()) {
@@ -31,6 +46,13 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
             close();
         }
     });
+
+    connect(ui.tableWidget, &QTableWidget::currentCellChanged, this,
+        [=](int currentRow, int, int, int) {
+            if (currentRow < list.count() && currentRow >= 0) {
+                QToolTip::showText(mapToGlobal(this->rect().topRight()), list[currentRow].article, this);
+            }
+        });
 
     connect(&watcher, &QFutureWatcher<bool>::finished, this, [=]() {
         if (watcher.result()) {

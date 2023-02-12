@@ -51,16 +51,16 @@ private:
 
 class AddedAction {
 public:
-    const static QString NoAction;
-    const static QString CloseAddDialog;
-    const static QString ClearAddDialog;
+    const inline static QString NoAction = "NoAction";
+    const inline static QString CloseAddDialog = "CloseAddDialog";
+    const inline static QString ClearAddDialog = "ClearAddDialog";
 
-    static QList<QString> getAllActions()
+    static const QList<QString> getAllActions()
     {
         return QList<QString>() << NoAction << CloseAddDialog << ClearAddDialog;
     }
 
-    static QString getDisplayName(QString action)
+    static const QString getDisplayName(QString action)
     {
         if (action == CloseAddDialog) {
             return QObject::tr("关闭对话框");

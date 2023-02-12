@@ -8,7 +8,7 @@
 
 class DbInfoTable : public BaseTable {
 public:
-    static const QString name;
+    static inline const QString name = "DbInfo";
     static const QList<QPair<QString, QString>> columnName;
 
     DbInfoTable(QSqlDatabase* database, int appNeedVersion);
@@ -22,7 +22,7 @@ public:
 protected:
     int appNeedVersion;
 
-    int dbVersion;
+    int dbVersion = -1;
 
     bool createTable() override;
 };

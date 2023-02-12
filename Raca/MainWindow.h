@@ -29,7 +29,7 @@ private:
 
     QMenu systemTrayMenu;
     QSystemTrayIcon systemTray;
-    bool exiting;
+    bool exiting = false;
 
     QFutureWatcher<QList<Tag>> refreshTagsDisplayWatcher;
     QFutureWatcher<QPair<bool, QString>> exportFinishedWatcher;

@@ -23,7 +23,7 @@ private:
 
     int id;
 
-    bool inserted;
+    bool inserted = false;
 
     void initConnect();
 

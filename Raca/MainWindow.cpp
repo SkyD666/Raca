@@ -17,7 +17,6 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , dataBaseManager(DataBaseManager::getInstance())
-    , exiting(false)
 {
     ui.setupUi(this);
 

@@ -9,7 +9,7 @@ public:
     ArticleSqlTableModel(QObject* parent = nullptr, const QSqlDatabase& db = QSqlDatabase());
     ~ArticleSqlTableModel();
 
-    static int HeaderColumnNameRole;
+    static inline const int HeaderColumnNameRole = Qt::UserRole + 2;
 
     Qt::ItemFlags flags(const QModelIndex& index) const override;
 

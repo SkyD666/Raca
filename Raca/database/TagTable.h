@@ -23,8 +23,8 @@ struct Tag {
 class TagTable : public BaseTable {
 
 public:
-    static const QString name;
-    static const QString displayName;
+    static inline const QString name = "Tag";
+    static inline const QString displayName = QObject::tr("标签");
     static const QMap<QString, QString> columnName;
     static const QList<QString> defaultSearchColumnName;
 

@@ -10,9 +10,9 @@ public:
         QObject* parent = nullptr);
 
     bool callback() override;
-    QString name() const override;
-    QString displayName() const override;
-    QString defaultHotkeyStr() const override;
+    const QString name() const override;
+    const QString displayName() const override;
+    const QString defaultHotkeyStr() const override;
 
 protected:
     std::function<bool()> mCallback;

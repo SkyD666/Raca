@@ -26,6 +26,27 @@ Util::~Util()
 {
 }
 
+QRegion Util::roundedRect(const QRect& rect, int r)
+{
+    QRegion region;
+    // middle and borders
+    region += rect.adjusted(r, 0, -r, 0);
+    region += rect.adjusted(0, r, 0, -r);
+    // top left
+    QRect corner(rect.topLeft(), QSize(r * 2, r * 2));
+    region += QRegion(corner, QRegion::Ellipse);
+    // top right
+    corner.moveTopRight(rect.topRight());
+    region += QRegion(corner, QRegion::Ellipse);
+    // bottom left
+    corner.moveBottomLeft(rect.bottomLeft());
+    region += QRegion(corner, QRegion::Ellipse);
+    // bottom right
+    corner.moveBottomRight(rect.bottomRight());
+    region += QRegion(corner, QRegion::Ellipse);
+    return region;
+}
+
 QString Util::escapedCSV(QString unexc)
 {
     if (!unexc.contains(','))

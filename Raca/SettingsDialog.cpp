@@ -37,6 +37,11 @@ void SettingsDialog::initConnect()
     }
     connect(ui.lwPage, &QListWidget::currentRowChanged, ui.stackedWidget, &QStackedWidget::setCurrentIndex);
 
+#if defined(Q_OS_WIN)
+    ui.cbStartWithOS->setVisible(true);
+#else
+    ui.cbStartWithOS->setVisible(false);
+#endif
     ui.cbStartWithOS->setChecked(GlobalData::startWithOS());
     connect(ui.cbStartWithOS, &QCheckBox::stateChanged, this, [=](int state) {
         GlobalData::setStartWithOS(state);
@@ -47,7 +52,7 @@ void SettingsDialog::initConnect()
         GlobalData::minimizeToTray = state;
     });
 
-    for (QString& action : AddedAction::getAllActions()) {
+    for (auto& action : AddedAction::getAllActions()) {
         ui.cbAddedAction->addItem(AddedAction::getDisplayName(action), action);
         if (GlobalData::addedAction == action) {
             ui.cbAddedAction->setCurrentIndex(ui.cbAddedAction->count() - 1);
@@ -62,6 +67,12 @@ void SettingsDialog::initConnect()
         GlobalData::useRegex = state;
     });
 
+#if defined(Q_OS_LINUX)
+    if (!qGuiApp->nativeInterface<QNativeInterface::QX11Application>()) {
+        ui.twHotkey->setEnabled(false);
+        ui.twHotkey->setToolTip(tr("全局热键不支持Wayland"));
+    }
+#endif
     ui.twHotkey->setHorizontalHeaderLabels(QStringList() << tr("功能") << tr("全局热键"));
     ui.twHotkey->setItemDelegateForColumn(0, new ReadOnlyDelegate(ui.twHotkey));
     ui.twHotkey->setItemDelegateForColumn(1, new HotkeyDelegate(ui.twHotkey));

@@ -1,6 +1,5 @@
 #include "DbInfoTable.h"
 
-const QString DbInfoTable::name = "DbInfo";
 const QList<QPair<QString, QString>> DbInfoTable::columnName = {
     qMakePair("key", QObject::tr("Key")),
     qMakePair("value", QObject::tr("Value")),
@@ -9,7 +8,6 @@ const QList<QPair<QString, QString>> DbInfoTable::columnName = {
 DbInfoTable::DbInfoTable(QSqlDatabase* database, int appNeedVersion)
     : BaseTable(database)
     , appNeedVersion(appNeedVersion)
-    , dbVersion(-1)
 {
 }
 

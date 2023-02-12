@@ -24,8 +24,8 @@ public:
 
     bool isTableExist(QString table);
 
-    ArticleTable* getArticleTable();
-    TagTable* getTagTable();
+    ArticleTable* getArticleTable() const;
+    TagTable* getTagTable() const;
 
 protected:
     bool migration();

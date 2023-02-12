@@ -3,8 +3,6 @@
 #include <QRandomGenerator>
 #include <QSqlRecord>
 
-const QString TagTable::name = "Tag";
-const QString TagTable::displayName = QObject::tr("标签");
 const QMap<QString, QString> TagTable::columnName = {
     { "id", QObject::tr("ID") },
     { "tag", QObject::tr("标签") },

@@ -8,7 +8,6 @@
 AddDialog::AddDialog(QWidget* parent, int id)
     : QDialog(parent)
     , id(id)
-    , inserted(false)
 {
     ui.setupUi(this);
 
