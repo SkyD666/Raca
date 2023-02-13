@@ -45,8 +45,13 @@ public:
 
     static void setDarkMode();
 
+    static const QString& getStyleName();
+    static void setStyleName(const QString& newStyleName);
+
 private:
     static bool hotkeysInited;
+
+    static QString styleName;
 };
 
 class AddedAction {

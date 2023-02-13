@@ -11,6 +11,7 @@
 #include <QCloseEvent>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QStyleFactory>
 #include <QtConcurrent>
 #include <model/ReadOnlyDelegate.h>
 
@@ -208,6 +209,31 @@ void MainWindow::initMenu()
                 });
                 menuTable->addAction(action);
             }
+        }
+    }
+
+    // 动态添加皮肤菜单
+    QMenu* styleMenu = new QMenu(ui.menuTool);
+    styleMenu->setTitle(tr("样式"));
+    ui.menuTool->addSeparator();
+    ui.menuTool->addMenu(styleMenu);
+
+    connect(styleMenu, &QMenu::triggered, this, [=](QAction* action) {
+        const QList<QAction*> actions = styleMenu->actions();
+        for (int i = 0; i < actions.count(); i++) {
+            actions.at(i)->setChecked(false);
+        }
+        action->setChecked(true);
+        GlobalData::setStyleName(action->data().toString());
+    });
+    for (auto style : QStyleFactory::keys()) {
+        QAction* action = new QAction(style, styleMenu);
+        action->setData(style);
+        action->setCheckable(true);
+        styleMenu->addAction(action);
+
+        if (style == GlobalData::getStyleName()) {
+            action->setChecked(true);
         }
     }
 

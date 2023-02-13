@@ -11,6 +11,7 @@ QHash<QString, QHash<QString, bool>> GlobalData::searchDomain = {};
 QString GlobalData::addedAction = AddedAction::CloseAddDialog;
 bool GlobalData::hotkeysInited = false;
 QMap<QString, HotkeyAction*> GlobalData::hotkeys = {};
+QString GlobalData::styleName = QString();
 
 GlobalData::GlobalData(QObject* parent)
     : QObject(parent)
@@ -56,6 +57,11 @@ void GlobalData::readSettings()
     addedAction = settings.value("AddedAction", AddedAction::CloseAddDialog).toString();
     settings.endGroup();
 
+    settings.beginGroup("Theme");
+    auto styles = QStyleFactory::keys();
+    setStyleName(settings.value("StyleName", styles.count() ? styles[0] : QString()).toString());
+    settings.endGroup();
+
     settings.beginGroup("Search");
     useRegex = settings.value("UseRegex", false).toBool();
     {
@@ -92,6 +98,10 @@ void GlobalData::writeSettings()
     for (auto i = hotkeys.constBegin(); i != hotkeys.constEnd(); i++) {
         settings.setValue(i.key(), i.value()->hotkeyStr());
     }
+    settings.endGroup();
+
+    settings.beginGroup("Theme");
+    settings.setValue("StyleName", styleName);
     settings.endGroup();
 
     settings.beginGroup("Search");
@@ -143,6 +153,18 @@ bool GlobalData::startWithOS()
 #else
     return false;
 #endif
+}
+
+const QString& GlobalData::getStyleName()
+{
+    return styleName;
+}
+
+void GlobalData::setStyleName(const QString& newStyleName)
+{
+    styleName = newStyleName;
+
+    qApp->setStyle(styleName);
 }
 
 void GlobalData::initHotkeys(QList<HotkeyAction*> actions)

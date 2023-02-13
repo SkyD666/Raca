@@ -10,8 +10,8 @@
         <a href="https://github.com/SkyD666/Raca/releases/latest" style="text-decoration:none" >
             <img src="https://img.shields.io/github/downloads/SkyD666/Raca/total" alt="GitHub all downloads"/>
         </a>
-        <a href="https://img.shields.io/badge/platform-Windows or Linux-brightgreen" style="text-decoration:none" >
-            <img src="https://img.shields.io/badge/platform-Windows or Linux-brightgreen" alt="Windows version"/>
+        <a href="https://img.shields.io/badge/platform-Windows | Linux-brightgreen" style="text-decoration:none" >
+            <img src="https://img.shields.io/badge/platform-Windows | Linux-brightgreen" alt="Windows version"/>
         </a>
         <a href="https://github.com/SkyD666/Raca/blob/master/LICENSE" style="text-decoration:none" >
             <img src="https://img.shields.io/github/license/SkyD666/Raca" alt="GitHub license"/>
@@ -24,6 +24,7 @@
         您还在为记不住小作文内容，面临<b>前面、中间、后面都忘了</b>的尴尬处境吗？使用这款工具将<b>帮助您记录您所遇到的小作文</b>，再也不因为忘记而烦恼！😋
     </p>
 </div>
+
 
 
 ## 💡主要功能
@@ -40,18 +41,27 @@
 
 ## 💻支持平台（Qt 6.4.2）
 
-测试平台：Windows 11 22H2, Ubuntu 22.10
+**测试平台：Windows 11 22H2, Ubuntu 22.10**
 
 - **仅支持64位**操作系统
 - Windows 10 21H2 (1809 or later)
 - Windows 11 21H2 (1809 or later)
-- Ubuntu 20.04 or later
+- Ubuntu 20.04 or later (目前需自行编译)
+- Mac OS 和其他 Linux 系统未测试！
 
 ## 🤩应用截图
 
 #### 首页
 
-![image](image/MainWindow.png)
+截图来自 Ubuntu 22.10
+
+<img src="image/MainWindowUbuntu.png" alt="image" style="zoom:80%;" />
+
+#### 快速输入
+
+截图来自 Windows 11 22H2
+
+![image](image/QuickInput.png)
 
 ## 🧑‍💻参与开发
 
