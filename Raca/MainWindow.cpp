@@ -226,7 +226,7 @@ void MainWindow::initMenu()
         action->setChecked(true);
         GlobalData::setStyleName(action->data().toString());
     });
-    for (auto style : QStyleFactory::keys()) {
+    for (auto& style : QStyleFactory::keys()) {
         QAction* action = new QAction(style, styleMenu);
         action->setData(style);
         action->setCheckable(true);

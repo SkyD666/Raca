@@ -13,6 +13,8 @@ public:
     QuickInputDialog(QWidget* parent = Q_NULLPTR);
     ~QuickInputDialog();
 
+    void resetPosition();
+
 private:
     Ui::QuickInputDialog ui;
 

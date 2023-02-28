@@ -51,13 +51,13 @@
 
 ## 🤩应用截图
 
-#### 首页
+### 首页
 
 截图来自 Ubuntu 22.10
 
 <img src="image/MainWindowUbuntu.png" alt="image" style="zoom:80%;" />
 
-#### 快速输入
+### 快速输入
 
 截图来自 Windows 11 22H2
 

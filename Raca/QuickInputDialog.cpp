@@ -28,10 +28,7 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground);
 
-    QPoint p = Util::getEditCursorPos();
-    if (!p.isNull()) {
-        move(p + QPoint(0, 30));
-    }
+    resetPosition();
 
     ui.tableWidget->horizontalHeader()->setVisible(false);
     ui.tableWidget->setColumnCount(2);
@@ -86,6 +83,14 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
 
 QuickInputDialog::~QuickInputDialog()
 {
+}
+
+void QuickInputDialog::resetPosition()
+{
+    QPoint p = Util::getEditCursorPos();
+    if (!p.isNull()) {
+        move(p + QPoint(0, 30));
+    }
 }
 
 void QuickInputDialog::mousePressEvent(QMouseEvent* event)

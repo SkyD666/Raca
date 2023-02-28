@@ -2,6 +2,8 @@
 
 #include "QuickInputDialog.h"
 
+bool QuickInputAction::isShow = false;
+
 QuickInputAction::QuickInputAction(QAction* action, QObject* parent)
     : HotkeyAction { action, parent }
 {
@@ -9,9 +11,22 @@ QuickInputAction::QuickInputAction(QAction* action, QObject* parent)
 
 bool QuickInputAction::callback()
 {
-    QuickInputDialog* dialog = new QuickInputDialog;
+    if (isShow) {
+        if (dialog) {
+            dialog->resetPosition();
+            dialog->activateWindow();
+        }
+        return true;
+    }
+    isShow = true;
+    dialog = new QuickInputDialog;
     dialog->show();
     dialog->activateWindow();
+    connect(dialog, &QObject::destroyed, this, [=](QObject* obj) {
+        obj->disconnect();
+        dialog = nullptr;
+        isShow = false;
+    });
     return true;
 }
 

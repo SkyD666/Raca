@@ -4,7 +4,7 @@
 #include <QSqlRecord>
 
 const QMap<QString, QString> TagTable::columnName = {
-    { "id", QObject::tr("ID") },
+    { "articleId", QObject::tr("ID") },
     { "tag", QObject::tr("标签") },
     { "createTime", QObject::tr("创建时间") }
 };
@@ -20,16 +20,16 @@ TagTable::~TagTable()
 {
 }
 
-bool TagTable::insertData(int id, QList<QString>& tags)
+bool TagTable::insertData(int articleId, QList<QString>& tags)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
     QSqlQuery query(*database);
 
-    query.prepare("INSERT OR IGNORE INTO Tag (id, tag, createTime) "
-                  "VALUES (:id, :tag, :createTime)");
-    query.bindValue(":id", QVariantList(tags.count(), id));
+    query.prepare("INSERT OR IGNORE INTO Tag (articleId, tag, createTime) "
+                  "VALUES (:articleId, :tag, :createTime)");
+    query.bindValue(":articleId", QVariantList(tags.count(), articleId));
     query.bindValue(":tag", tags);
     query.bindValue(":createTime", QVariantList(tags.count(), QDateTime::currentMSecsSinceEpoch()));
 
@@ -41,18 +41,18 @@ bool TagTable::insertData(int id, QList<QString>& tags)
     return true;
 }
 
-bool TagTable::getDataById(QList<Tag>& list, int id)
+bool TagTable::getDataById(QList<Tag>& list, int articleId)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
 
     QSqlQuery query(*database);
-    if (query.prepare("SELECT * FROM " + TagTable::name + " WHERE id = :id")) {
-        query.bindValue(":id", id);
+    if (query.prepare("SELECT * FROM " + TagTable::name + " WHERE articleId = :articleId")) {
+        query.bindValue(":articleId", articleId);
         if (query.exec()) {
             while (query.next()) {
-                list.append(Tag(query.value("id").toInt(),
+                list.append(Tag(query.value("articleId").toInt(),
                     query.value("tag").toString(),
                     query.value("createTime").toLongLong()));
             }
@@ -66,15 +66,15 @@ bool TagTable::getDataById(QList<Tag>& list, int id)
     return false;
 }
 
-bool TagTable::removeData(int id)
+bool TagTable::removeData(int articleId)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
     QSqlQuery query(*database);
 
-    query.prepare("DELETE FROM Tag WHERE id = :id");
-    query.bindValue(":id", id);
+    query.prepare("DELETE FROM Tag WHERE articleId = :articleId");
+    query.bindValue(":articleId", articleId);
 
     if (!query.exec()) {
         QSqlError lastError = query.lastError();
@@ -103,10 +103,10 @@ bool TagTable::createTable()
 
     QSqlQuery query(*database);
     bool success = query.exec("CREATE TABLE IF NOT EXISTS Tag ("
-                              "id INTEGER NOT NULL, "
+                              "articleId INTEGER NOT NULL, "
                               "tag TEXT NOT NULL, "
                               "createTime LONG NOT NULL, "
-                              "PRIMARY KEY (id, tag))");
+                              "PRIMARY KEY (articleId, tag))");
 
     if (success) {
         return true;
