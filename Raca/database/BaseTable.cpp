@@ -24,6 +24,28 @@ bool BaseTable::exportToCSV(QDir dir, QString tableName)
     if (!csvFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
         return false;
     } else {
+        QSqlQuery tableNameQuery(*database);
+        tableNameQuery.prepare(QString("PRAGMA table_info(%1)").arg(tableName));
+        if (!tableNameQuery.exec()) {
+            QSqlError lastError = tableNameQuery.lastError();
+            qDebug() << lastError << lastError.driverText();
+            return false;
+        }
+
+        QTextStream stream(&csvFile);
+        // export table name
+        int columnIndex = 0;
+        while (tableNameQuery.next()) {
+            if (columnIndex > 0) {
+                stream << ',';
+            }
+            stream << Util::escapedCSV("\"" + tableNameQuery.record().value(1).toString() + "\"");
+            columnIndex++;
+        }
+        stream << "\n";
+
+        // -----------------------
+
         QSqlQuery query(*database);
         query.prepare(QString("SELECT * FROM %1").arg(tableName));
         if (!query.exec()) {
@@ -32,7 +54,6 @@ bool BaseTable::exportToCSV(QDir dir, QString tableName)
             return false;
         }
 
-        QTextStream stream(&csvFile);
         while (query.next()) {
             const QSqlRecord record = query.record();
             for (int i = 0, recCount = record.count(); i < recCount; ++i) {

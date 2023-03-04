@@ -2,7 +2,7 @@
     <div>
         <img src="image/Raca.svg" style="height: 210px"/>
     </div>
-    <h1>😅 Raca</h1>
+    <h1>😅 Raca (桌面端)</h1>
     <p>
         <a href="https://github.com/SkyD666/Raca/releases/latest" style="text-decoration:none">
             <img src="https://img.shields.io/github/v/release/SkyD666/Raca?display_name=release" alt="GitHub release (latest by date)"/>
@@ -23,7 +23,13 @@
     <p>
         您还在为记不住小作文内容，面临<b>前面、中间、后面都忘了</b>的尴尬处境吗？使用这款工具将<b>帮助您记录您所遇到的小作文</b>，再也不因为忘记而烦恼！😋
     </p>
+    <p>
+        <a href="https://github.com/SkyD666/Raca-Android" style="text-decoration:none" >
+            📱Android端请点击这里
+        </a>
+    </p>
 </div>
+
 
 
 
