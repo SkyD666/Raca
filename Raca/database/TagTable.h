@@ -9,13 +9,13 @@
 #include <QtSql/QSqlQuery>
 
 struct Tag {
-    Tag(int articleId, QString tag, long long createTime)
+    Tag(QString articleUuid, QString tag, long long createTime)
     {
-        this->articleId = articleId;
+        this->articleUuid = articleUuid;
         this->tag = tag;
         this->createTime = createTime;
     };
-    int articleId;
+    QString articleUuid;
     QString tag;
     long long createTime;
 };
@@ -31,9 +31,9 @@ public:
     TagTable(QSqlDatabase* database);
     ~TagTable();
 
-    bool insertData(int articleId, QList<QString>& tag);
-    bool getDataById(QList<Tag>& list, int articleId);
-    bool removeData(int articleId);
+    bool insertData(QString articleUuid, QList<QString>& tag);
+    bool getDataById(QList<Tag>& list, QString articleUuid);
+    bool removeData(QString articleUuid);
 
 protected:
     bool initTable() override;

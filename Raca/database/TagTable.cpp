@@ -4,7 +4,7 @@
 #include <QSqlRecord>
 
 const QMap<QString, QString> TagTable::columnName = {
-    { "articleId", QObject::tr("ID") },
+    { "articleUuid", QObject::tr("段落UUID") },
     { "tag", QObject::tr("标签") },
     { "createTime", QObject::tr("创建时间") }
 };
@@ -20,16 +20,16 @@ TagTable::~TagTable()
 {
 }
 
-bool TagTable::insertData(int articleId, QList<QString>& tags)
+bool TagTable::insertData(QString articleUuid, QList<QString>& tags)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
     QSqlQuery query(*database);
 
-    query.prepare("INSERT OR IGNORE INTO Tag (articleId, tag, createTime) "
-                  "VALUES (:articleId, :tag, :createTime)");
-    query.bindValue(":articleId", QVariantList(tags.count(), articleId));
+    query.prepare("INSERT OR IGNORE INTO Tag (articleUuid, tag, createTime) "
+                  "VALUES (:articleUuid, :tag, :createTime)");
+    query.bindValue(":articleUuid", QVariantList(tags.count(), articleUuid));
     query.bindValue(":tag", tags);
     query.bindValue(":createTime", QVariantList(tags.count(), QDateTime::currentMSecsSinceEpoch()));
 
@@ -41,18 +41,18 @@ bool TagTable::insertData(int articleId, QList<QString>& tags)
     return true;
 }
 
-bool TagTable::getDataById(QList<Tag>& list, int articleId)
+bool TagTable::getDataById(QList<Tag>& list, QString articleUuid)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
 
     QSqlQuery query(*database);
-    if (query.prepare("SELECT * FROM " + TagTable::name + " WHERE articleId = :articleId")) {
-        query.bindValue(":articleId", articleId);
+    if (query.prepare("SELECT * FROM " + TagTable::name + " WHERE articleUuid LIKE :articleUuid")) {
+        query.bindValue(":articleUuid", articleUuid);
         if (query.exec()) {
             while (query.next()) {
-                list.append(Tag(query.value("articleId").toInt(),
+                list.append(Tag(query.value("articleUuid").toString(),
                     query.value("tag").toString(),
                     query.value("createTime").toLongLong()));
             }
@@ -66,15 +66,15 @@ bool TagTable::getDataById(QList<Tag>& list, int articleId)
     return false;
 }
 
-bool TagTable::removeData(int articleId)
+bool TagTable::removeData(QString articleUuid)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
     QSqlQuery query(*database);
 
-    query.prepare("DELETE FROM Tag WHERE articleId = :articleId");
-    query.bindValue(":articleId", articleId);
+    query.prepare("DELETE FROM Tag WHERE articleUuid LIKE :articleUuid");
+    query.bindValue(":articleUuid", articleUuid);
 
     if (!query.exec()) {
         QSqlError lastError = query.lastError();
@@ -103,10 +103,10 @@ bool TagTable::createTable()
 
     QSqlQuery query(*database);
     bool success = query.exec("CREATE TABLE IF NOT EXISTS Tag ("
-                              "articleId INTEGER NOT NULL, "
+                              "articleUuid TEXT NOT NULL, "
                               "tag TEXT NOT NULL, "
                               "createTime LONG NOT NULL, "
-                              "PRIMARY KEY (articleId, tag))");
+                              "PRIMARY KEY (articleUuid, tag))");
 
     if (success) {
         return true;

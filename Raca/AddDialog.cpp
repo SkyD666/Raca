@@ -5,15 +5,15 @@
 #include <QSet>
 #include <QtConcurrent>
 
-AddDialog::AddDialog(QWidget* parent, int id)
+AddDialog::AddDialog(QWidget* parent, QString uuid)
     : QDialog(parent)
-    , id(id)
+    , uuid(uuid)
 {
     ui.setupUi(this);
 
     initConnect();
 
-    if (id == INT_MIN) {
+    if (uuid.isEmpty()) {
         setWindowTitle(tr("添加"));
     } else {
         setWindowTitle(tr("修改"));
@@ -44,10 +44,10 @@ void AddDialog::getDataFromDb()
     DataBaseManager* db = DataBaseManager::getInstance();
     QFuture<QPair<bool, Article>> articleFuture = QtConcurrent::run([=]() {
         Article article;
-        bool rtn = db->getArticleTable()->getData(id, article);
+        bool rtn = db->getArticleTable()->getData(uuid, article);
         QFuture<QPair<bool, QList<Tag>>> tagFuture = QtConcurrent::run([=]() {
             QList<Tag> tags;
-            bool rtn = db->getTagTable()->getDataById(tags, id);
+            bool rtn = db->getTagTable()->getDataById(tags, uuid);
             return qMakePair(rtn, tags);
         });
         tagWatcher.setFuture(tagFuture);
@@ -63,7 +63,7 @@ void AddDialog::initConnect()
         QString title = tr("提示");
         if (result.isValid()) {
             QMessageBox::information(this, title, tr("添加成功！"));
-            this->id = result.toInt();
+            this->uuid = result.toString();
             inserted = true;
         } else {
             QMessageBox::critical(this, title, tr("添加失败！"));
@@ -85,7 +85,7 @@ void AddDialog::initConnect()
             QVariant rtn = DataBaseManager::getInstance()->getArticleTable()->insertData(
                 Article(ui.leTitle->text(),
                     ui.teArticle->toPlainText(),
-                    QDateTime::currentMSecsSinceEpoch(), id));
+                    QDateTime::currentMSecsSinceEpoch(), uuid));
             if (rtn.isValid()) {
                 QSet<QString> tags;
                 for (int i = 0; i < ui.lwTag->count(); i++) {
@@ -93,8 +93,8 @@ void AddDialog::initConnect()
                 }
                 QList list = tags.values();
                 auto tagTable = DataBaseManager::getInstance()->getTagTable();
-                tagTable->removeData(rtn.toInt());
-                tagTable->insertData(rtn.toInt(), list);
+                tagTable->removeData(rtn.toString());
+                tagTable->insertData(rtn.toString(), list);
             }
             return rtn;
         });

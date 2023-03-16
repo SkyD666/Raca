@@ -31,6 +31,7 @@ QuickInputDialog::QuickInputDialog(QWidget* parent)
     resetPosition();
 
     ui.tableWidget->horizontalHeader()->setVisible(false);
+    ui.tableWidget->hideColumn(0);
     ui.tableWidget->setColumnCount(2);
     ui.tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
     ui.tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);

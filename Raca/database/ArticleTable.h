@@ -15,14 +15,14 @@ struct Article {
     Article(QString title = QString(),
         QString article = QString(),
         long long createTime = 0L,
-        int id = -1)
+        QString uuid = "")
     {
         this->title = title;
         this->article = article;
         this->createTime = createTime;
-        this->id = id;
+        this->uuid = uuid;
     };
-    int id;
+    QString uuid;
     QString title;
     QString article;
     long long createTime;
@@ -44,9 +44,9 @@ public:
 
     QVariant insertData(Article data);
 
-    bool deleteData(int id);
+    bool deleteData(QString uuid);
 
-    bool getData(int id, Article& article);
+    bool getData(QString uuid, Article& article);
 
     bool getDataListByKeyword(QList<Article>& list, QString keyword, bool regex = false);
 

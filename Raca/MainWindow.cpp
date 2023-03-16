@@ -151,7 +151,7 @@ void MainWindow::initMenu()
             bool rtn = 0;
             for (QModelIndex& index : indexes) {
                 rtn = dataBaseManager->getArticleTable()
-                          ->deleteData(model->data(model->index(index.row(), 0)).toInt());
+                          ->deleteData(model->data(model->index(index.row(), 0)).toString());
                 if (!rtn) {
                     qDebug() << model->lastError().driverText();
                 }
@@ -173,7 +173,7 @@ void MainWindow::initMenu()
     ui.actionEdit->setEnabled(false);
     connect(ui.actionEdit, &QAction::triggered, this, [=]() {
         int row = ui.tvResult->currentIndex().row();
-        openAddDialog(model->data(model->index(row, 0)).toInt());
+        openAddDialog(model->data(model->index(row, 0)).toString());
     });
 
     ui.actionUseRegex->setChecked(GlobalData::useRegex);
@@ -294,9 +294,9 @@ void MainWindow::resetTableModel()
         model->setHeaderData(model->fieldIndex(i.key()), Qt::Horizontal, i.key(), ArticleSqlTableModel::HeaderColumnNameRole);
     }
 
-    // ui.tvResult->hideColumn(0);
+    ui.tvResult->hideColumn(0);
 
-    ui.tvResult->setItemDelegateForColumn(model->fieldIndex("id"), new ReadOnlyDelegate(ui.tvResult));
+    ui.tvResult->setItemDelegateForColumn(model->fieldIndex("uuid"), new ReadOnlyDelegate(ui.tvResult));
 
     ui.tvResult->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui.tvResult->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
@@ -314,9 +314,9 @@ void MainWindow::search()
     refreshDetailInfoDisplay(ui.tvResult->selectionModel()->currentIndex());
 }
 
-void MainWindow::openAddDialog(int id)
+void MainWindow::openAddDialog(QString uuid)
 {
-    auto dialog = new AddDialog(this, id);
+    auto dialog = new AddDialog(this, uuid);
     if (dialog->exec()) {
         model->submitAll();
         search();
@@ -327,20 +327,20 @@ void MainWindow::openAddDialog(int id)
 void MainWindow::refreshDetailInfoDisplay(const QModelIndex& current)
 {
 
-    int id = model->data(model->index(current.row(), 0)).toInt();
+    QString uuid = model->data(model->index(current.row(), 0)).toString();
     ui.leTitle->setText(model->data(model->index(current.row(), 1)).toString());
     ui.teArticle->setText(model->data(model->index(current.row(), 2)).toString());
     ui.leCreateTime->setText(model->data(model->index(current.row(), 3)).toString());
 
-    refreshTagsDisplay(id);
+    refreshTagsDisplay(uuid);
 }
 
-void MainWindow::refreshTagsDisplay(int id)
+void MainWindow::refreshTagsDisplay(QString uuid)
 {
     ui.lwTag->clear();
     QFuture<QList<Tag>> refreshTagsDisplayFuture = QtConcurrent::run([=]() {
         QList<Tag> tags;
-        DataBaseManager::getInstance()->getTagTable()->getDataById(tags, id);
+        DataBaseManager::getInstance()->getTagTable()->getDataById(tags, uuid);
         return tags;
     });
     refreshTagsDisplayWatcher.setFuture(refreshTagsDisplayFuture);

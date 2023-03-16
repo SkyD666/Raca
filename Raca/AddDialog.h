@@ -10,7 +10,7 @@ class AddDialog : public QDialog {
     Q_OBJECT
 
 public:
-    AddDialog(QWidget* parent, int id = INT_MIN);
+    AddDialog(QWidget* parent, QString uuid = "");
     ~AddDialog();
 
 protected:
@@ -21,7 +21,7 @@ protected:
 private:
     Ui::AddDialog ui;
 
-    int id;
+    QString uuid;
 
     bool inserted = false;
 

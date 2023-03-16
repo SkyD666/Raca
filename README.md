@@ -5,16 +5,22 @@
     <h1>😅 Raca (桌面端)</h1>
     <p>
         <a href="https://github.com/SkyD666/Raca/releases/latest" style="text-decoration:none">
-            <img src="https://img.shields.io/github/v/release/SkyD666/Raca?display_name=release" alt="GitHub release (latest by date)"/>
+            <img src="https://img.shields.io/github/v/release/SkyD666/Raca?display_name=release&style=for-the-badge" alt="GitHub release (latest by date)"/>
         </a>
         <a href="https://github.com/SkyD666/Raca/releases/latest" style="text-decoration:none" >
-            <img src="https://img.shields.io/github/downloads/SkyD666/Raca/total" alt="GitHub all downloads"/>
+            <img src="https://img.shields.io/github/downloads/SkyD666/Raca/total?style=for-the-badge" alt="GitHub all downloads"/>
         </a>
-        <a href="https://img.shields.io/badge/platform-Windows | Linux-brightgreen" style="text-decoration:none" >
-            <img src="https://img.shields.io/badge/platform-Windows | Linux-brightgreen" alt="Windows version"/>
+        <a href="https://doc.qt.io/qt-6/supported-platforms.html" style="text-decoration:none" >
+            <img src="https://img.shields.io/badge/Windows 10+-blue?style=for-the-badge&logo=windows&logoColor=white" alt="Windows"/>
+        </a>
+        <a href="https://doc.qt.io/qt-6/supported-platforms.html" style="text-decoration:none" >
+            <img src="https://img.shields.io/badge/Linux-black?style=for-the-badge&logo=linux&logoColor=white" alt="Linux"/>
         </a>
         <a href="https://github.com/SkyD666/Raca/blob/master/LICENSE" style="text-decoration:none" >
-            <img src="https://img.shields.io/github/license/SkyD666/Raca" alt="GitHub license"/>
+            <img src="https://img.shields.io/github/license/SkyD666/Raca?style=for-the-badge" alt="GitHub license"/>
+        </a>
+        <a href="https://discord.gg/pEWEjeJTa3" style="text-decoration:none" >
+            <img src="https://img.shields.io/discord/982522006819991622?color=5865F2&label=Discord&logo=discord&logoColor=white&style=for-the-badge" alt="Discord"/>
         </a>
 	</p>
     <p>
@@ -29,7 +35,6 @@
         </a>
     </p>
 </div>
-
 
 
 

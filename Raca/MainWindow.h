@@ -40,7 +40,7 @@ private:
     void initHotkeys();
     void resetTableModel();
     void search();
-    void openAddDialog(int id = INT_MIN);
+    void openAddDialog(QString uuid = "");
     void refreshDetailInfoDisplay(const QModelIndex& current);
-    void refreshTagsDisplay(int id);
+    void refreshTagsDisplay(QString uuid);
 };

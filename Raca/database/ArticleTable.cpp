@@ -4,10 +4,11 @@
 #include "database/TableInfo.h"
 #include <QRandomGenerator>
 #include <QSqlRecord>
+#include <QUuid>
 #include <QVariant>
 
 const QMap<QString, QString> ArticleTable::columnName = {
-    { "id", QObject::tr("ID") },
+    { "uuid", QObject::tr("UUID") },
     { "title", QObject::tr("标题") },
     { "article", QObject::tr("内容") },
     { "createTime", QObject::tr("创建时间") }
@@ -55,7 +56,7 @@ QString ArticleTable::getFilter(QString keyword)
                 }
             }
         } else {
-            QString subSelect = QString("(SELECT DISTINCT id FROM %1 WHERE FALSE ").arg(table);
+            QString subSelect = QString("(SELECT DISTINCT articleUuid FROM %1 WHERE FALSE ").arg(table);
             for (auto& column : columns) {
                 if (TableInfo::getColumnName2DisplayName()[table].contains(column)) {
                     if (!GlobalData::searchDomain[table][column]) {
@@ -69,7 +70,7 @@ QString ArticleTable::getFilter(QString keyword)
                 }
             }
             subSelect += ")";
-            filter += " OR id IN " + subSelect;
+            filter += " OR uuid IN " + subSelect;
         }
     }
 
@@ -86,17 +87,21 @@ QVariant ArticleTable::insertData(Article data)
     }
     QSqlQuery query(*database);
 
-    if (data.id == INT_MIN) {
-        query.prepare("INSERT OR REPLACE INTO Article (title, article, createTime) "
-                      "VALUES (:title, :article, :createTime)");
+    QString& uuid = data.uuid;
+
+    if (data.uuid.isEmpty()) {
+        query.prepare("INSERT OR REPLACE INTO Article (uuid, title, article, createTime) "
+                      "VALUES (:uuid, :title, :article, :createTime)");
+        uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
+        query.bindValue(":uuid", uuid);
         query.bindValue(":title", data.title);
         query.bindValue(":article", data.article);
         query.bindValue(":createTime", data.createTime);
     } else {
         query.prepare("UPDATE Article "
                       "SET title = :title, article = :article, createTime = :createTime "
-                      "WHERE id = :id");
-        query.bindValue(":id", data.id);
+                      "WHERE uuid LIKE :uuid");
+        query.bindValue(":uuid", data.uuid);
         query.bindValue(":title", data.title);
         query.bindValue(":article", data.article);
         query.bindValue(":createTime", data.createTime);
@@ -107,33 +112,33 @@ QVariant ArticleTable::insertData(Article data)
         qDebug() << lastError << lastError.driverText();
         return QVariant(QMetaType(QMetaType::UnknownType));
     }
-    return data.id == INT_MIN ? query.lastInsertId() : data.id;
+    return uuid;
 }
 
-bool ArticleTable::deleteData(int id)
+bool ArticleTable::deleteData(QString uuid)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
     QSqlQuery query(*database);
-    tagTable->removeData(id);
-    query.prepare("DELETE FROM Article WHERE id=:id");
-    query.bindValue(":id", id);
+    tagTable->removeData(uuid);
+    query.prepare("DELETE FROM Article WHERE uuid LIKE :uuid");
+    query.bindValue(":uuid", uuid);
     query.exec();
     return true;
 }
 
-bool ArticleTable::getData(int id, Article& article)
+bool ArticleTable::getData(QString uuid, Article& article)
 {
     if (!database->isOpen() && !database->open()) {
         return false;
     }
 
     QSqlQuery query(*database);
-    if (query.prepare("SELECT * FROM " + ArticleTable::name + " WHERE id = :id")) {
-        query.bindValue(":id", id);
+    if (query.prepare("SELECT * FROM " + ArticleTable::name + " WHERE uuid LIKE :uuid")) {
+        query.bindValue(":uuid", uuid);
         if (query.exec() && query.next()) {
-            article.id = query.value("id").toInt();
+            article.uuid = query.value("uuid").toString();
             article.title = query.value("title").toString();
             article.article = query.value("article").toString();
             article.createTime = query.value("createTime").toLongLong();
@@ -161,7 +166,7 @@ bool ArticleTable::getDataListByKeyword(QList<Article>& list, QString keyword, b
             Article data(query.value(1).toString(),
                 query.value(2).toString(),
                 query.value(3).toLongLong(),
-                query.value(0).toInt());
+                query.value(0).toString());
             list.append(data);
         }
         return true;
@@ -191,7 +196,7 @@ bool ArticleTable::createTable()
 
     QSqlQuery query(*database);
     bool success = query.exec("CREATE TABLE IF NOT EXISTS Article ("
-                              "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                              "uuid TEXT PRIMARY KEY, "
                               "title TEXT, "
                               "article TEXT NOT NULL, "
                               "createTime LONG NOT NULL)");
